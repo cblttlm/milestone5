@@ -1,0 +1,22 @@
+pipeline {
+   agent any 
+   stages{
+       stage('git clone') { 
+         steps{
+             checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'test', url: 'https://github.com/cblttlm/emarket-milestone4.git']]])
+          }
+       }
+       stage('Build') {
+         steps{
+                sh 'mvn clean install -f emarket-master/cloud-eureka-service/pom.xml -Dmaven.test.skip=true'
+           }
+        }
+           stage('deploy') {
+               steps{
+                  sh 'docker build -t eurekaservice:2.0 -f Dockerfile .'
+                  sh 'docker run -d -p 8760:8760 eurekaservice:2.0'
+                  sh 'echo hello'
+     }
+     }
+   }
+}
